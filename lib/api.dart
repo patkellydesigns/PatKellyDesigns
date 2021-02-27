@@ -4,7 +4,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 ValueNotifier<GraphQLClient> client = ValueNotifier(
   GraphQLClient(
     cache: InMemoryCache(),
-    link: HttpLink(uri: 'http://10.0.2.2:3000'),
+    link: HttpLink(
+        uri: 'https://kyanpu-app.myshopify.com/api/2021-01/graphql.json'),
   ),
 );
 
