@@ -2,17 +2,20 @@
 
 
 
-A new Flutter project.
+## This app utilizes Shopify as a CMS for Blogging and Managing Pages and Products.
+I will link the wiki and detail further as we progress. 
+
+## Firebase is being used for Hosting, Authentication, Analytics, Messaging and A / B Testing. 
+
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Clone it!
 
-A few resources to get you started if this is your first Flutter project:
+VSCode ```F5```
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+CLI ```flutter run```
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Choose the Flutter Dart configuration. 
+
+DM for help or get me on Discord! 
