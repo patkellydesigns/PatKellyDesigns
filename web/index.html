@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -24,13 +25,41 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>patkellydesigns</title>
   <link rel="manifest" href="manifest.json">
 </head>
+
 <body>
-  <!-- This script installs service_worker.js to provide PWA functionality to
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
+
+
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-messaging.js"></script>
+
+  <script>
+
+    var firebaseConfig = {
+      apiKey: "AIzaSyChT5vK8zbdMg8YlGSO9qB8y7mUdnNjI7Q",
+      authDomain: "patrick-kelly.firebaseapp.com",
+      projectId: "patrick-kelly",
+      storageBucket: "patrick-kelly.appspot.com",
+      messagingSenderId: "172817566820",
+      appId: "1:172817566820:web:c43ba37fdba59aba1c2371",
+      measurementId: "G-HK2C829LQC"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
+
+  <!--TODO This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
   <script>
@@ -42,4 +71,5 @@
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
+
 </html>

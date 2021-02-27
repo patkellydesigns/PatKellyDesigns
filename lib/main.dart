@@ -1,113 +1,134 @@
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:patkellydesigns/api.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(TodoApp());
 
-class MyApp extends StatelessWidget {
+class TodoApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+    return GraphQLProvider(
+        child: MaterialApp(
+          title: '@patkellydesigns',
+          theme: ThemeData(
+            primarySwatch: Colors.purple,
+            primaryColor: Colors.purple[300],
+            accentColor: Colors.yellow[300],
+          ),
+          home: ListPage(),
+        ),
+        client: client);
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class ListPage extends StatefulWidget {
+  ListPage({Key key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ListPageState createState() => _ListPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _ListPageState extends State<ListPage> {
+  final newTaskController = TextEditingController();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  Future<String> onCreate(BuildContext context, id) async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Mutation(
+            options: MutationOptions(
+              documentNode: gql(createTaskMutation),
+            ),
+            builder: (RunMutation runMutation, QueryResult result) {
+              return AlertDialog(
+                title: Text('Enter a new task'),
+                content: new Row(
+                  children: <Widget>[
+                    new Expanded(
+                        child: new TextField(
+                            autofocus: true,
+                            decoration: new InputDecoration(
+                                labelText: 'Task description',
+                                hintText: 'Do stuff',
+                                errorText: result.hasException
+                                    ? result.exception.toString()
+                                    : null),
+                            controller: newTaskController))
+                  ],
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('Ok'),
+                    onPressed: () {
+                      runMutation({'title': newTaskController.text, 'id': id});
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            });
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    return Query(
+        options:
+            QueryOptions(documentNode: gql(getTasksQuery), pollInterval: 1),
+        builder: (QueryResult result,
+            {VoidCallback refetch, FetchMore fetchMore}) {
+          return Scaffold(
+              appBar: AppBar(
+                title: Text("TODO App With GraphQL"),
+              ),
+              body: Center(
+                  child: result.hasException
+                      ? Text(result.exception.toString())
+                      : result.loading
+                          ? CircularProgressIndicator()
+                          : TaskList(
+                              list: result.data['allTodos'],
+                              onRefresh: refetch)),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => !result.hasException && !result.loading
+                    ? this.onCreate(context, result.data['allTodos'].length)
+                    : () {},
+                tooltip: 'New Task',
+                child: Icon(Icons.add),
+              ));
+        });
+  }
+}
+
+class TaskList extends StatelessWidget {
+  TaskList({@required this.list, @required this.onRefresh});
+
+  final list;
+  final onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    return Mutation(
+      options: MutationOptions(documentNode: gql(updateTaskMutation)),
+      builder: (RunMutation runMutation, QueryResult result) {
+        return ListView.builder(
+          itemCount: this.list.length,
+          itemBuilder: (context, index) {
+            final task = this.list[index];
+            return CheckboxListTile(
+                title: Text(task['title']),
+                value: task['completed'],
+                onChanged: (_) {
+                  runMutation(
+                      {'id': index + 1, 'completed': !task['completed']});
+                  onRefresh();
+                });
+          },
+        );
+      },
     );
   }
 }
